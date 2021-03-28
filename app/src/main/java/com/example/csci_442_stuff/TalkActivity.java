@@ -7,20 +7,27 @@ import android.os.Message;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.mlkit.vision.face.Face;
+
+import java.util.List;
 
 public class TalkActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TTS tts;
     String msg;
     EditText et;
+    TextView tv;
+    List<Face> fac;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_talk);
-        Button returnButton = findViewById(R.id.returnButton);
-        returnButton.setOnClickListener(this);
+        //Button returnButton = findViewById(R.id.returnButton);
+        //returnButton.setOnClickListener(this);
 
         Button talkButton = findViewById(R.id.talkButton);
         talkButton.setOnClickListener(this);

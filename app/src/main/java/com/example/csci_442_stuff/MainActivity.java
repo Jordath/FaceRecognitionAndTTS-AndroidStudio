@@ -7,9 +7,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,8 +28,14 @@ import java.io.InputStream;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private TTS tts;
+    String msg;
+    EditText et;
+
     TextView tv;
     List<Face> fac;
+    List<Face> emptyFaces = null;
+    Bitmap bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,24 +43,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         tv = findViewById(R.id.textView);
+        tts = TTS.getInstance(this);
+        tts.start();
 
-        InputStream stream = getResources().openRawResource(R.raw.image02);
-        Bitmap bitmap = BitmapFactory.decodeStream(stream);
+        ImageView tv1;
+
+        InputStream stream = getResources().openRawResource(R.raw.image01);
+        bitmap = BitmapFactory.decodeStream(stream);
         InputImage image = InputImage.fromBitmap(bitmap, 0);
-
         FaceDetector detector = FaceDetection.getClient();
+
+
 
         Task<List<Face>> result = detector.process(image).addOnSuccessListener(
                 new OnSuccessListener<List<Face>>() {
                     @Override
                     public void onSuccess(List<Face> faces) {
+
                         fac = faces;
                         if(fac == null){
                             Log.v("**draw***", "main2 FAXW is null");
                         }
                         FaceView overlay = (FaceView) findViewById(R.id.faceView);
-                        overlay.setContent(bitmap, fac);
-                        tv.setText(faces.size() + " Faces Seen");
+
+                        //overlay.setContent(bitmap, fac);
+                        msg = faces.size() + " Faces Seen";
+                        //tv.setText(faces.size() + " Faces Seen");
                     }
                 }
         ).addOnFailureListener(
@@ -62,45 +79,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
         );
-        /*
-        Button toastButton = findViewById(R.id.toastButton);
-        toastButton.setOnClickListener(this);
-        Button activityButton = findViewById(R.id.newActivityButton);
-        activityButton.setOnClickListener(this);
-        Button talkButton = findViewById(R.id.talkButton);
-        talkButton.setOnClickListener(this);
-        */
+        Button startButton = findViewById(R.id.startButton);
+        startButton.setOnClickListener(this);
 
 
     }
+
     public void onClick(View view){
-        /*
-        if(view.getId() == R.id.toastButton){
-            Toast.makeText(this, "Hello CSCI 442", Toast.LENGTH_LONG).show();
+
+        if(view.getId() == R.id.startButton){
+            tv.setText(fac.size() + " Faces Seen");
+
+            FaceView overlay = (FaceView) findViewById(R.id.faceView);
+            overlay.setContent(bitmap, fac);
+
+
+            Bundle b = new Bundle();
+            String text = msg;
+            b.putString("LM", text);
+            if(tts.handler != null){
+                Message msg = tts.handler.obtainMessage(0);
+                msg.setData(b);
+                tts.handler.sendMessage(msg);
+            }
         }
-        if(view.getId() == R.id.newActivityButton){
-            Toast.makeText(this, "Start New Activity", Toast.LENGTH_LONG).show();
-            startSecondActivity();
 
-        }
-        if(view.getId() == R.id.talkButton){
-            Toast.makeText(this, "Start Talking", Toast.LENGTH_LONG).show();
-            startTalkActivity();
-
-        }
-
-         */
-
-
-    }
-    public void startSecondActivity(){
-        Intent secondActivity = new Intent(this, SecondActivity.class);
-        startActivity(secondActivity);
-
-    }
-    public void startTalkActivity(){
-        Intent talkActivity = new Intent(this, TalkActivity.class);
-        startActivity(talkActivity);
     }
 
     @Override
