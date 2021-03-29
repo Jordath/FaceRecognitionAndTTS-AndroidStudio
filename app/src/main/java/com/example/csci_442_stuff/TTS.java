@@ -41,7 +41,7 @@ public class TTS extends Thread implements TextToSpeech.OnInitListener{
                 String aResponse = msg.getData().getString("LM");
                 //speakOut("Hello");
                 speakOut(aResponse);
-                Toast.makeText(con, "Talking " + aResponse, Toast.LENGTH_LONG).show();
+                Toast.makeText(con, aResponse, Toast.LENGTH_LONG).show();
             }
         };
         Looper.loop();

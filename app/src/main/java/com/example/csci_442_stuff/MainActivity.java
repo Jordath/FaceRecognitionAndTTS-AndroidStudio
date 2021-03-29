@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -34,8 +35,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     TextView tv;
     List<Face> fac;
-    List<Face> emptyFaces = null;
+    List<Face> emptyFaces;
     Bitmap bitmap;
+    FaceView overlay;
+    //ImageView imageView = (ImageView) findViewById(R.id.imageView2);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +49,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tts = TTS.getInstance(this);
         tts.start();
 
-        ImageView tv1;
 
-        InputStream stream = getResources().openRawResource(R.raw.image01);
+        ImageView imageView = (ImageView) findViewById(R.id.imageView2);
+        int imageResource = getResources().getIdentifier("@drawable/image05", null, this.getPackageName());
+        imageView.setImageResource(imageResource);
+
+        InputStream stream = getResources().openRawResource(R.raw.image05);
         bitmap = BitmapFactory.decodeStream(stream);
         InputImage image = InputImage.fromBitmap(bitmap, 0);
         FaceDetector detector = FaceDetection.getClient();
+        overlay = (FaceView) findViewById(R.id.faceView);
 
+
+        overlay.setContent(bitmap, emptyFaces);
 
 
         Task<List<Face>> result = detector.process(image).addOnSuccessListener(
@@ -66,8 +75,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         FaceView overlay = (FaceView) findViewById(R.id.faceView);
 
-                        //overlay.setContent(bitmap, fac);
-                        msg = faces.size() + " Faces Seen";
+                        //overlay.invalidate();
+                        //overlay.setContent(image.getBitmapInternal(), emptyFaces);
+                        msg = "There are " + faces.size() + " Faces in this picture.";
                         //tv.setText(faces.size() + " Faces Seen");
                     }
                 }
@@ -88,7 +98,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view){
 
         if(view.getId() == R.id.startButton){
-            tv.setText(fac.size() + " Faces Seen");
+            ImageView imageView = (ImageView) findViewById(R.id.imageView2);
+
+            tv.setText(msg);
+            imageView.setImageResource(0);
 
             FaceView overlay = (FaceView) findViewById(R.id.faceView);
             overlay.setContent(bitmap, fac);
